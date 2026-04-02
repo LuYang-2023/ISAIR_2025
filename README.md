@@ -10,7 +10,7 @@ The source code is currently under preparation and will be released upon the acc
 
 ## 2、Selected experimental results
 
-![Experimental results](Experimental_Results.png)
+![Experimental results](Experimental_results.png)
 
 
 ## Author's Contact
