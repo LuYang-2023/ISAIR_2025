@@ -1,6 +1,8 @@
 # ISAIR 2025 - Cross-View Online Action Detection via Contrastive Learning with Future Frame Guidance
 
-## Code Availability
+## Code
+This project is built upon [MiniRoad](https://github.com/jbistanbul/MiniROAD).
+Please refer to the original repository for configuration details.
 
 
 
