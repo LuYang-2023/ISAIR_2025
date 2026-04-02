@@ -1,0 +1,91 @@
+task: OAD
+debug_mode: debug  # [run, debug]
+
+data:
+  data_name: Dahlia
+  num_classes: 8 # including background
+  metric: AP+cAP
+  feature_pretrained: kinetics
+  rgb_type: rgb_kinetics_resnet50
+  flow_type: flow_kinetics_resnet50
+  annotation_type: target_perframe
+  root_path: /home/data/Dahlia/feature
+#  root_path: /seu_share/home/xieliping/220221947/workspace/OAD/dataset/Ikea/feature
+
+  video_list_path: /home/User/luyang/Cross_view/CLFG_OAD/data_info/video_list.json
+  output_path: /home/User/luyang/Cross_view/CLFG_OAD/output_dahlia
+
+  window_size: 256
+  stride: 4
+
+  ratio: 1.
+
+data_loader:
+  batch_size: 16
+  test_batch_size: 1
+  num_workers: 4
+
+model:
+  branch: gru
+  model_name: MROAD_RNN
+  dropout: 0.3  # 0.25
+  embedding_dim: 1024
+  hidden_dim: 1024
+  num_layers: 1
+  loss: FutureGuidedContrastive+AnticipationLoss
+  device: 'cuda'
+  patience: 2  # early stopping
+
+solver:
+  num_epoch: 10
+  optimizer: AdamW
+  base_lr: 0.00014  # TODO 0.00014
+  weight_decay: 0.5
+  start_epoch: 1
+  scheduler:
+    scheduler_name: warmup_cosine
+    warmup_epoch: 2
+    warmup_factor: 0.3
+    warmup_method: linear
+
+
+weight:
+  w_det: 0.9
+  w_rec: 0.
+  w_kld: 0.
+  w_ewc: 0.
+  w_contrastive: 0.1  # 对比学习损失权重
+  w_anticipation: 0.  # 未来预测损失权重
+
+# multi-view settings
+multiview:
+  n_view: 3
+  n_branch: 2
+  data_mode: K1  # [random, certain 'dev1+dev2',  'dev1+dev2+dev3']
+  run_mode: cs # cs, cv, csv
+
+vae:
+  enable: False
+  latent_dim: 512
+  oa: True
+  w_rec_eval: 0.05
+  w_kld_eval: 0.25
+  w_ewc_eval: 1.
+
+# 对比学习设置
+contrastive:
+  enable: true
+  temperature: 0.07
+  negative_samples: 16
+  use_future_guidance: true  # 是否使用未来帧引导
+  future_weight: 1.0  # 未来帧对比损失权重
+  weight: 0.1  # 对比学习总权重
+
+# 未来预测设置
+anticipation:
+  enable: false
+  length: 5  # 预测未来5个时间步
+  fusion_method: attention  # 融合方式: [attention, gate, mean]
+  decay_factor: 0.9  # 未来步损失衰减因子
+  use_for_inference: true  # 推理时也使用未来预测
+  last_frame_only: true  # 借鉴MROADA：只计算最后一帧的损失（在线场景推荐）
